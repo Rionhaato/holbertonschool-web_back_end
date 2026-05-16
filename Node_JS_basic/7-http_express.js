@@ -34,7 +34,10 @@ async function getStudentReport(path) {
   try {
     const data = await fs.readFile(path, 'utf8');
     return buildStudentReport(data);
-  } catch {
+  } catch (error) {
+    if (error) {
+      throw new Error('Cannot load the database');
+    }
     throw new Error('Cannot load the database');
   }
 }
@@ -52,7 +55,9 @@ app.get('/students', (request, response) => {
       response.send(`This is the list of our students\n${report}`);
     })
     .catch((error) => {
-      response.send(`This is the list of our students\n${error.message}`);
+      response
+        .status(500)
+        .send(`This is the list of our students\n${error.message}`);
     });
 });
 
