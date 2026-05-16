@@ -32,25 +32,29 @@ async function getStudentReport(path) {
   try {
     const data = await fs.readFile(path, 'utf8');
     return buildStudentReport(data);
-  } catch {
+  } catch (error) {
+    if (error) {
+      throw new Error('Cannot load the database');
+    }
     throw new Error('Cannot load the database');
   }
 }
 
 const app = http.createServer((request, response) => {
-  response.writeHead(200, { 'Content-Type': 'text/plain' });
-
   if (request.url === '/students') {
     getStudentReport(process.argv[2])
       .then((report) => {
+        response.writeHead(200, { 'Content-Type': 'text/plain' });
         response.end(`This is the list of our students\n${report}`);
       })
       .catch((error) => {
+        response.writeHead(500, { 'Content-Type': 'text/plain' });
         response.end(`This is the list of our students\n${error.message}`);
       });
     return;
   }
 
+  response.writeHead(200, { 'Content-Type': 'text/plain' });
   response.end('Hello Holberton School!');
 });
 
